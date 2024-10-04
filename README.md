@@ -25,7 +25,7 @@ if (error = assert.fails(url, {
   searchParams: {
     response_type: 'code',
     client_id: 'mockClientId',
-    state: assert.optional(/.+/)
+    state: assert.Optional(/.+/)
   }
 })) {
   return metro.response({
