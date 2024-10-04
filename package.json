@@ -1,0 +1,32 @@
+{
+  "name": "@muze-nl/assert",
+  "version": "0.1.0",
+  "description": "light optional assert library",
+  "type": "module",
+  "main": "src/assert.mjs",
+  "scripts": {
+    "test": "tap test/*.mjs",
+    "tap": "tap"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/muze-nl/assert.git"
+  },
+  "author": "auke@muze.nl",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/muze-nl/assert/issues"
+  },
+  "homepage": "https://github.com/muze-nl/assert/#readme",
+  "devDependencies": {
+    "tap": "^16.0.1"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "files": [
+    "/src",
+    "/LICENSE",
+    "/README.md"
+  ]
+}
