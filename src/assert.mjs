@@ -89,11 +89,18 @@ export const anyOf = (...patterns) =>
 
 /**
  * Tests a given value to see if it is a valid (and absolute) URL, by
- * parsing it with the URL() constructor
+ * parsing it with the URL() constructor, and then testing the href
+ * value to be equal to the initial value.
  */
 export function validURL(data) {
 	try {
+		if (data instanceof URL) {
+			data = data.href
+		}
 		let url = new URL(data)
+		if (url.href!=data) {
+			return error('data is not a valid url',data,'validURL')
+		}
 	} catch(e) {
 		return error('data is not a valid url',data,'validURL')
 	}
