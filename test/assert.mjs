@@ -147,7 +147,9 @@ tap.test('validURL', t => {
         'telnet://192.0.2.16:80/',
         'urn:oasis:names:specification:docbook:dtd:xml:4.1.2',
         'file:///C:/',
-        'http://www.ariadne-cms.org/~user/page'
+        'http://www.ariadne-cms.org/~user/page',
+        'http://example.com/foo+bar',
+        'http://example.com/foo%20bar'
 	]
 	const invalidURLs = [
          'http://127.0.0.1:11211:80/',
