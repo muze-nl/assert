@@ -4,9 +4,53 @@
 
 This is a light-weight library to do optional assertion checking. By default any assertions made are not tested. Assertion code is not run. Unless you toggle assertion checking, usually in developer mode, by calling `enable`. Now your assertions are run, and if any assertions fail, an error is thrown with information about the specific failure.
 
-## Asserting preconditions
+_Note:_ This library was created as part of the [@muze-nl/metro](https://github.com/muze-nl/metro/) package initially, but has escaped its confines. In the rest of the documentation, when referring to 'middleware', we mean middleware modules for the metro http client in the browser.
 
-This library was created as part of the [@muze-nl/metro](https://github.com/muze-nl/metro/) package initially, but has escaped its confines.
+## Installation
+
+### Using NPM:
+
+```shell
+npm install @muze-nl/assert
+```
+
+The include it in your javascript code like this:
+```javascript
+import * as assert from '@muze-nl/assert'
+```
+
+Or if you are a fan of shorter assertions:
+
+```javascript
+import { assert, enable, disable, Optional, Required, Recommended, oneOf, anyOf, not, validURL, instanceOf } from '@muze-nl/assert'
+```
+
+### Using a CDN like jsdelivr
+```html
+<script src="https://cdn.jsdelivr.net/npm/@muze-nl/assert@0.1.1/dist/browser.js" integrity="sha384-fqO47gvA1/4UGo0iokMu6ZXdBCkRUbNfXejhrmZrWpJaP+7FPaJqJ03Irhzl1ifk" crossorigin="anonymous"></script>
+```
+
+_Note_: jsdelivr.com doesn't calculate the integrity hash for you, I've used https://www.srihash.org here.
+
+Using a CDN like this means that assert is loaded globally as window.assert.
+
+## Usage
+
+```javascript
+function myFunction(param1, param2) {
+  assert(param1, Required(validURL))
+  assert(param2, Optional(not(/foo.*/)))
+  // do your own stuff here
+}
+```
+
+When calling myFunction above, none of the assertions are actually checked, unless you enable assertion checking first, like this:
+
+```javascript
+enable()
+```
+
+## Asserting preconditions
 
 When writing middleware there is usually quite a lot of preconditions to check. When a developer wants to use your middleware, it is nice to have explicit feedback about what he or she is doing wrong. However this is only useful during development. Once in production you should assume that there are no developer mistakes anymore... or at least that the end user has no use for detailed error reports about your middleware.
 
