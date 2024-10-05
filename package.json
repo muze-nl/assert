@@ -1,6 +1,6 @@
 {
   "name": "@muze-nl/assert",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "light optional assert library",
   "type": "module",
   "main": "src/assert.mjs",
@@ -26,7 +26,16 @@
   },
   "files": [
     "/src",
+    "/dist",
     "/LICENSE",
     "/README.md"
-  ]
+  ],
+  "source": [ "src/browser.mjs" ],
+  "targets": {
+    "default": {
+      "distDir": "./dist",
+      "optimize": true
+    },
+    "main": false
+  }
 }
