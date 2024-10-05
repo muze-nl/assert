@@ -1,7 +1,14 @@
-# assert.fails
+# fails
 
-```
-assert.fails(data, ...assertions) : <false|Array>
+```javascript
+import { fails, Required, oneOf } from '@muze-nl/assert'
+
+const problems = fails(data, {
+    state: Required(oneOf('foo','bar'))
+})
+if (problems) {
+    console.error(problems)
+}
 ```
 
 This checks if data matches all of the assertions. If any assertion fails, this will return an array of failed assertions.
@@ -12,6 +19,8 @@ If data is an object, assertions must also be an object. For any property of dat
 - a regular expression: the property in the data must match this expression
 - a function: the function is called with (property, data) and must return false (for success) or an array of problems.
 - an object: each of the properties of this object must match with the child properties of the data
+- an array: the property must be an array, if you pass an array with a value, each element of the array is asserted against that value
+- Number or Boolean: the property must be a number or a boolean, respectively
 
 Here is an example:
 
@@ -23,11 +32,11 @@ function myValidatorFunction(property, data) {
   return false // no problems
 }
 
-let errors = assert.fails(response, {
+let errors = fails(response, {
   status: 200,
   headers: {
     'Content-Type':'application/json',
-    'Etag': assert.optional(/([a-z0-9_\-])+/i)
+    'Etag': Optional(/([a-z0-9_\-])+/i)
   },
   body: myValidatorFunction
 })
