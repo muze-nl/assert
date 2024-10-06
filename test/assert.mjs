@@ -304,7 +304,7 @@ tap.test('[validURL] empty', t => {
 
 	}
 	let expect = {
-		redirect_uris: Required()
+		redirect_uris: Required([validURL])
 	}
 	let result = fails(source, expect)
 	t.equal(result.length, 1)
@@ -321,4 +321,53 @@ tap.test('missing prop', t => {
 	let result = fails(source, expect)
 	t.equal(result.length, 1)
 	t.end()
+})
+
+export const MustInclude = (...options) =>
+	(value, root, path) => {
+		return Array.isArray(value) && options.filter(o => !value.includes(o)).length != 0
+	}
+
+tap.test('custom function', t => {
+	let source = {
+		scopes_supported: ['openid','offline_access']
+	}
+	let expect = {
+		scopes_supported: Required(MustInclude('openid')),
+	}
+	let result = fails(source, expect)
+	t.equal(result, false)
+	t.end()
+})
+
+const MustHave = function(pattern) {
+	return (data, root, path) => {
+		if (data) {
+			return fails(root, pattern)
+		} else {
+			return false
+		}
+	}
+}
+
+tap.test('root and path', t => {
+	let source = {
+		client_info: {
+			scopes_supported: ['openid','offline_access']
+		},
+		test: true
+	}
+	let expect = {
+		test: Optional(MustHave({ client_info: { scopes_supported: Required([]) }}))
+	}
+	let result = fails(source, expect)
+	t.equal(result, false)
+	source.client_info = {}
+	result = fails(source, expect)
+	t.equal(result.length, 1)
+	t.equal(result[0].path, '.client_info.scopes_supported')
+	source.test = false
+	result = fails(source, expect)
+	t.equal(result, false)
+	t.end()	
 })
