@@ -298,3 +298,27 @@ tap.test('array incorrect', t => {
 	t.equal(result.length, 2)
 	t.end()
 })
+
+tap.test('[validURL] empty', t => {
+	let source = {
+
+	}
+	let expect = {
+		redirect_uris: Required()
+	}
+	let result = fails(source, expect)
+	t.equal(result.length, 1)
+	t.end()
+})
+
+tap.test('missing prop', t => {
+	let source = {
+
+	}
+	let expect = {
+		redirect_uris: /.+/
+	}
+	let result = fails(source, expect)
+	t.equal(result.length, 1)
+	t.end()
+})

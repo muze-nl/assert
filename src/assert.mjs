@@ -43,7 +43,7 @@ export const Optional = (pattern) =>
  * Tests a given value against a pattern, always.
  */
 export const Required = (pattern) =>
-	(data) => fails(data, pattern)
+	(data) => (data==null || typeof data == 'undefined') ? error('data is required') : fails(data, pattern)
 
 /**
  * Tests a given value against a pattern, only if the value is not null or undefined
@@ -171,6 +171,8 @@ export function fails(data, pattern, root) {
             if (index>-1) {
             	problems.push(error('data['+index+'] does not match pattern', data[index], pattern))
             }
+        } else if (typeof data == 'undefined') {
+        	problems.push(error('data is undefined, should match pattern', data, pattern))
     	} else if (!pattern.test(data)) {
         	problems.push(error('data does not match pattern', data, pattern))
         }
