@@ -151,12 +151,19 @@ export function fails(data, pattern, root) {
 	}
 	let problems = []
 	if (pattern === Boolean) {
-		if (typeof data != 'boolean') {
+		if (typeof data != 'boolean' && !(data instanceof Boolean)) {
 			problems.push(error('data is not a boolean', data, pattern))
 		}		
 	} else if (pattern === Number) {
-		if (typeof data != 'number') {
+		if (typeof data != 'number' && !(data instanceof Number)) {
 			problems.push(error('data is not a number', data, pattern))
+		}
+	} else if (pattern === String) {
+		if (typeof data != 'string' && !(data instanceof String)) {
+			problems.push(error('data is not a string', data, pattern))
+		}
+		if (data == "") {
+			problems.push(error('data is an empty string, which is not allowed', data, pattern))
 		}
 	} else if (pattern instanceof RegExp) {
     	if (Array.isArray(data)) {
@@ -175,12 +182,14 @@ export function fails(data, pattern, root) {
 		if (!Array.isArray(data)) {
 			problems.push(error('data is not an array',data,[]))
 		}
-		for (p of pattern) {
-			let problem = fails(data, p, root)
-			if (Array.isArray(problem)) {
-				problems.concat(problem)
-			} else if (problem) {
-				problems.push(problem)
+		for (let p of pattern) {
+			for (let val of data) {
+				let problem = fails(val, p, root)
+				if (Array.isArray(problem)) {
+					problems = problems.concat(problem)
+				} else if (problem) {
+					problems.push(problem)
+				}
 			}
     	}
     } else if (pattern && typeof pattern == 'object') {
@@ -195,15 +204,10 @@ export function fails(data, pattern, root) {
         	if (data instanceof URLSearchParams) {
         		data = Object.fromEntries(data)
         	}
-	        let p = problems[problems.length-1]
 	        for (const [wKey, wVal] of Object.entries(pattern)) {
 	            let result = fails(data[wKey], wVal, root)
 	            if (result) {
-	            	if (!p || typeof p == 'string') {
-	            		p = {}
-	            		problems.push(error(p, data[wKey], wVal))
-	            	}
-	            	p[wKey] = result.problems
+	            	problems = problems.concat(result)
 	            }
 	        }
 	    }

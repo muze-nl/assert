@@ -23,6 +23,7 @@ tap.test('object', t => {
 	t.end()
 })
 
+
 tap.test('enable', t => {
 	let result = assert('foo','bar')
 	t.equal(result, undefined)
@@ -209,5 +210,91 @@ tap.test('validEmail', t => {
 			console.log(email, 'should fail to assert')
 		}
 	}
+	t.end()
+})
+
+tap.test('Number', t => {
+let source = {
+		foo: 42,
+		bar: 1.5,
+		baz: new Number(10)
+	}
+	let expect = {
+		foo: Number,
+		bar: Number,
+		baz: Number
+	}
+	let result = fails(source, expect)
+	t.equal(result, false)
+	t.end()	
+})
+
+tap.test('Boolean', t => {
+let source = {
+		foo: true,
+		bar: false,
+		baz: new Boolean(false)
+	}
+	let expect = {
+		foo: Boolean,
+		bar: Boolean,
+		baz: Boolean
+	}
+	let result = fails(source, expect)
+	t.equal(result, false)
+	t.end()	
+})
+
+tap.test('String', t => {
+let source = {
+		foo: "a string",
+		bar: new String('also a string')
+	}
+	let expect = {
+		foo: String,
+		bar: String
+	}
+	let result = fails(source, expect)
+	t.equal(result, false)
+	t.end()	
+})
+
+tap.test('Empty String', t => {
+let source = {
+		foo: ""
+	}
+	let expect = {
+		foo: String
+	}
+	let result = fails(source, expect)
+	t.equal(result.length, 1)
+	t.end()	
+})
+
+tap.test('array', t => {
+	let source = {
+		foo: [1,2,3],
+		bar: ['a','b','c']
+	}
+	let expect = {
+		foo: [Number],
+		bar: [String]
+	}
+	let result = fails(source, expect)
+	t.equal(result, false)
+	t.end()
+})
+
+tap.test('array incorrect', t => {
+	let source = {
+		foo: [1,2,'a'],
+		bar: ['a','b','']
+	}
+	let expect = {
+		foo: [Number],
+		bar: [String]
+	}
+	let result = fails(source, expect)
+	t.equal(result.length, 2)
 	t.end()
 })
