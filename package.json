@@ -1,6 +1,6 @@
 {
   "name": "@muze-nl/assert",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "light optional assert library",
   "type": "module",
   "main": "src/assert.mjs",
