@@ -36,6 +36,7 @@ export function assert(source, test) {
 	if (globalThis.assertEnabled) {
 		let problems = fails(source,test)
 		if (problems) {
+			console.error('🅰️  Assertions failed because of:', problems, 'in this source:', source)
 			throw new Error('Assertions failed', {
 				cause: { problems, source } 
 			})
