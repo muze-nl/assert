@@ -109,6 +109,18 @@ tap.test('optional nested', t => {
 	t.end()
 })
 
+tap.test('Optional empty', t => {
+	let source = {
+		foo: 'bar'
+	}
+	let expect = {
+		foo: Optional()
+	}
+	let result = fails(source, expect)
+	t.equal(result, false)
+	t.end()
+})
+
 tap.test('oneOf', t => {
 	let source = {
 		foo: 'bar'

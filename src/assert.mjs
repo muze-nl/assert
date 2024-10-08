@@ -1,7 +1,4 @@
 /*
-FIXME: Optional() fails if the pattern is not set and the value is
-TODO: scratch: Required() and Optional() and Recommended() should test multiple patterns
-  instead: add allOf(...patterns) function
 TODO: add assertExplain global flag, so that if assert() fails, you can call explain() with
   the same pattern and it will return text explanation of why it failed, each assertion function must 
   then check assertExplain, and return a text explanation of what fails or succeeds
@@ -39,7 +36,9 @@ export function assert(source, test) {
 	if (globalThis.assertEnabled) {
 		let problems = fails(source,test)
 		if (problems) {
-			throw new assertError('Assertions failed', problems, source)
+			throw new Error('Assertions failed', {
+				cause: { problems, source } 
+			})
 		}
 	}
 }
@@ -49,9 +48,7 @@ export function assert(source, test) {
  */
 export function Optional(pattern) {
 	return function _Optional(data, root, path) {
-		if (data==null || typeof data == 'undefined') {
-			return false 
-		} else {
+		if (typeof data != 'undefined' && data!=null && typeof pattern != 'undefined' ) {
 			return fails(data, pattern, root, path)
 		}
 	}
@@ -76,7 +73,7 @@ export function Required(pattern) {
  * Tests a given value against a pattern, only if the value is not null or undefined
  * If null or undefined, it does print a warning to the console.
  */
-export function Recommended(...pattern) {
+export function Recommended(pattern) {
 	return function _Recommended(data, root, path) {
 		if (data==null || typeof data == 'undefined') {
 			console.warn('data does not contain recommended value', data, pattern, path)
@@ -288,18 +285,6 @@ export function fails(data, pattern, root, path='') {
     	return problems
     }
     return false
-}
-
-
-/**
- * Class used in assert() to add problems found and details to the error object
- */
-class assertError extends Error {
-	constructor(message, problems, ...details) {
-		super(message)
-		this.problems = problems
-		this.details = details
-	}
 }
 
 /**
