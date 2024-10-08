@@ -1,5 +1,5 @@
 import { enable, disable, fails, assert, 
-	oneOf, anyOf, not, Optional, Required, Recommended,
+	oneOf, anyOf, allOf, not, Optional, Required, Recommended,
 	validURL, validEmail } from '../src/assert.mjs'
 import tap from 'tap'
 
@@ -23,6 +23,17 @@ tap.test('object', t => {
 	t.end()
 })
 
+tap.test('object2', t => {
+	let source = {
+		foo: 'bar'
+	}
+	let expect = {
+		baz: 'bax'
+	}
+	let result = fails(source, expect)
+	t.equal(result.length, 1)
+	t.end()
+})
 
 tap.test('enable', t => {
 	let result = assert('foo','bar')
@@ -121,6 +132,47 @@ tap.test('oneOf2', t => {
 	t.ok(result)
 	t.equal(result.length, 1)
 	t.end()	
+})
+
+tap.test('anyOf', t => {
+	let source = {
+		foo: ['bar','baz']
+	}
+	let expect = {
+		foo: anyOf('bar','baz','bax')
+	}
+	let result = fails(source, expect)
+	t.ok(!result)
+	t.end()
+})
+
+tap.test('allOf', t => {
+	let source = {
+		foo: 'bar',
+		baz: 'bax'
+	}
+	let expect = allOf({
+		foo: 'bar'
+	}, {
+		baz: 'bax'
+	})
+	let result = fails(source, expect)
+	t.ok(!result)
+	t.end()
+})
+
+tap.test('allOf2', t => {
+	let source = {
+		foo: 'bar'
+	}
+	let expect = allOf({
+		foo: 'bar'
+	}, {
+		baz: 'bax'
+	})
+	let result = fails(source, expect)
+	t.equal(result.length, 1)
+	t.end()
 })
 
 tap.test('not', t => {

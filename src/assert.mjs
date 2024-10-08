@@ -1,6 +1,12 @@
 /*
-FIXME: instead of root, pass the current path to each call to fails,
-so that Recommended for instance can tell you which entry is missing
+FIXME: Optional() fails if the pattern is not set and the value is
+TODO: scratch: Required() and Optional() and Recommended() should test multiple patterns
+  instead: add allOf(...patterns) function
+TODO: add assertExplain global flag, so that if assert() fails, you can call explain() with
+  the same pattern and it will return text explanation of why it failed, each assertion function must 
+  then check assertExplain, and return a text explanation of what fails or succeeds
+  top level can then filter to show only the failures
+  (so that not(x) can show the succeeds message of x)
 */
 
 /**
@@ -29,7 +35,7 @@ export function disable() {
  * If it is, and any assertion fails, it will throw an assertError
  * with a list of problems and other details.
  */
-export const assert = (source, test) => {
+export function assert(source, test) {
 	if (globalThis.assertEnabled) {
 		let problems = fails(source,test)
 		if (problems) {
@@ -41,20 +47,21 @@ export const assert = (source, test) => {
 /**
  * Tests a given value against a pattern, only if the value is not null or undefined
  */
-export const Optional = (pattern) => 
-	(data, root, path) => {
+export function Optional(pattern) {
+	return function _Optional(data, root, path) {
 		if (data==null || typeof data == 'undefined') {
 			return false 
 		} else {
 			return fails(data, pattern, root, path)
 		}
 	}
+}
 
 /**
  * Tests a given value against a pattern, always.
  */
-export const Required = (pattern) =>
-	(data, root, path) => {
+export function Required(pattern) {
+	return function _Required(data, root, path) {
 		if (data==null || typeof data == 'undefined') {
 			return error('data is required', data, pattern || 'any value', path)
 		} else if (typeof pattern != 'undefined') {
@@ -63,13 +70,14 @@ export const Required = (pattern) =>
 			return false
 		}
 	}
+}
 
 /**
  * Tests a given value against a pattern, only if the value is not null or undefined
  * If null or undefined, it does print a warning to the console.
  */
-export const Recommended = (pattern) =>
-	(data, root, path) => {
+export function Recommended(...pattern) {
+	return function _Recommended(data, root, path) {
 		if (data==null || typeof data == 'undefined') {
 			console.warn('data does not contain recommended value', data, pattern, path)
 			return false
@@ -77,13 +85,14 @@ export const Recommended = (pattern) =>
 			return fails(data, pattern, root, path)
 		}
 	}
+}
 
 /**
  * Tests a given value against a set of patterns, untill one succeeds
  * Returns an error if none succeed
  */
-export const oneOf = (...patterns) => 
-	(data, root, path) => {
+export function oneOf(...patterns) { 
+	return function _oneOf(data, root, path) {
 		for(let pattern of patterns) {
 			if (!fails(data, pattern, root, path)) {
 				return false
@@ -91,14 +100,15 @@ export const oneOf = (...patterns) =>
 		}
 		return error('data does not match oneOf patterns', data, patterns, path)
 	}
+}
 
 /**
  * Tests a given array of values against a set of patterns
  * If any value does not match one of the patterns, it will return an error
  * If not given an array to test, it will return an error
  */
-export const anyOf = (...patterns) =>
-	(data, root, path) => {
+export function anyOf(...patterns) {
+	return function _anyOf(data, root, path) {
 		if (!Array.isArray(data)) {
 			return error('data is not an array',data,'anyOf',path)
 		}
@@ -109,6 +119,20 @@ export const anyOf = (...patterns) =>
 		}
 		return false
 	}
+}
+
+export function allOf(...patterns) {
+	return function _allOf(data, root, path) {
+		let problems = []
+		for (let pattern of patterns) {
+			problems = problems.concat(fails(data, pattern, root, path))
+		}
+		problems = problems.filter(Boolean)
+		if (problems.length) {
+			return error('data does not match all given patterns', data, patterns, path, problems)
+		}
+	}
+}
 
 /**
  * Tests a given value to see if it is a valid (and absolute) URL, by
@@ -122,15 +146,14 @@ export function validURL(data, root, path) {
 		}
 		let url = new URL(data)
 		if (url.href!=data) {
-			if (url.href+'/'==data || url.href==data+'/') {
-				return false // new URL() always adds a / as path
+			if (!(url.href+'/'==data || url.href==data+'/')) {
+				// new URL() always adds a / as path
+				return error('data is not a valid url',data,'validURL',path)
 			}
-			return error('data is not a valid url',data,'validURL',path)
 		}
 	} catch(e) {
 		return error('data is not a valid url',data,'validURL',path)
 	}
-	return false
 }
 
 /**
@@ -139,33 +162,34 @@ export function validURL(data, root, path) {
  * it is an actual working email address, just that it looks like one.
  */
 export function validEmail(data, root, path) {
-	if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data)) {
-		return false // data matches email regex
+	if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data)) {
+		return error('data is not a valid email',data,'validEmail',path)
 	}
-	return error('data is not a valid email',data,'validEmail',path)
 }
 
 /**
  * Tests a given value to see if it is an object which is an instance of the given
  * constructor
  */
-export const instanceOf = (constructor) =>
-	(data, root, path) => !(data instanceof constructor) 
-		? error('data is not an instanceof pattern',data,constructor,path)
-		: false
+export function instanceOf(constructor) {
+	return function _instanceOf(data, root, path) {
+		if (!(data instanceof constructor)) {
+			return error('data is not an instanceof pattern',data,constructor,path)
+		}
+	}
+}
 
 /**
  * Runs the given test pattern on a value, if the test succeeds, it fails
  * the not() test.
  */
-export const not = (pattern) =>
-	(data, root, path) => {
-		let problems = fails(data, pattern, root, path) 
-		if (!problems) {
+export function not(pattern) {
+	return function _not(data, root, path) {
+		if (!fails(data, pattern, root, path)) {
 			return error('data matches pattern, when required not to', data, pattern, path)
 		}
-		return false
 	}
+}
 
 /**
  * returns an array of problems if the data fails to satisfy 
@@ -281,11 +305,15 @@ class assertError extends Error {
 /**
  * Returns an object with message, found and expected properties
  */ 
-export function error(message, found, expected, path) {
-	return {
+export function error(message, found, expected, path, problems) {
+	let result = {
 		message,
 		found,
 		expected,
 		path
 	}
+	if (problems) {
+		result.problems = problems
+	}
+	return result
 }
