@@ -1,7 +1,7 @@
 [![GitHub License](https://img.shields.io/github/license/muze-nl/assert)](https://github.com/muze-nl/assert/blob/main/LICENSE)
 [![GitHub package.json version](https://img.shields.io/github/package-json/v/muze-nl/assert)]()
-[![NPM Version](https://img.shields.io/npm/v/assert)](https://www.npmjs.com/package/assert)
-[![npm bundle size](https://img.shields.io/bundlephobia/min/assert)](https://www.npmjs.com/package/assert)
+[![NPM Version](https://img.shields.io/npm/v/@muze-nl/assert)](https://www.npmjs.com/package/@muze-nl/assert)
+[![npm bundle size](https://img.shields.io/bundlephobia/min/@muze-nl/assert)](https://www.npmjs.com/package/@muze-nl/assert)
 [![Project stage: Development][project-stage-badge: Development]][project-stage-page]
 
 # Assert: javascript optional assertion checking
