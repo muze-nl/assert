@@ -435,3 +435,14 @@ tap.test('root and path', t => {
 	t.equal(result, false)
 	t.end()	
 })
+
+tap.test('string instead of object', t => {
+	let source = "I am a string"
+	let expect = {
+		string: "I am an object"
+	}
+	let result = fails(source, expect)
+	t.equal(result.length, 1)
+	t.equal(result[0].message, 'data is not an object, pattern is')
+	t.end()
+})
