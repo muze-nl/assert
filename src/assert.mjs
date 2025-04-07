@@ -269,8 +269,8 @@ export function fails(data, pattern, root, path='') {
 	            	problems = problems.concat(result)
 	            }
         	} else {
-		        for (const [wKey, wVal] of Object.entries(pattern)) {
-		            let result = fails(data[wKey], wVal, root, path+'.'+wKey)
+		        for (const [patternKey, subpattern] of Object.entries(pattern)) {
+		            let result = fails(data[patternKey], subpattern, root, path+'.'+patternKey)
 		            if (result) {
 		            	problems = problems.concat(result)
 		            }
