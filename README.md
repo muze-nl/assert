@@ -1,8 +1,58 @@
-# Asserts
+[![GitHub License](https://img.shields.io/github/license/muze-nl/assert)](https://github.com/muze-nl/assert/blob/main/LICENSE)
+[![GitHub package.json version](https://img.shields.io/github/package-json/v/muze-nl/assert)]()
+[![NPM Version](https://img.shields.io/npm/v/assert)](https://www.npmjs.com/package/assert)
+[![npm bundle size](https://img.shields.io/bundlephobia/min/assert)](https://www.npmjs.com/package/assert)
+[![Project stage: Development][project-stage-badge: Development]][project-stage-page]
 
-[![Project stage: Experimental][project-stage-badge: Experimental]][project-stage-page]
+# Assert: javascript optional assertion checking
 
 This is a light-weight library to do optional assertion checking. By default any assertions made are not tested. Assertion code is not run. Unless you toggle assertion checking, usually in developer mode, by calling `enable`. Now your assertions are run, and if any assertions fail, an error is thrown with information about the specific failure.
+
+This style of assertion testing is often used with [Design by Contract](https://en.wikipedia.org/wiki/Design_by_contract) software development. When implementing a fixed specification, like a W3C recommendation or RFC, using design by contract allows you to write code very similar to the specification.
+
+Here is an example from the [@muze-nl/metro-oidc](https://github.com/muze-nl/,etro-oidc) library, which shows how you can use Assert to check specification requirements, in a dense but readable way:
+
+```javascript
+  // https://openid.net/specs/openid-connect-registration-1_0.html#ClientMetadata
+  const openid_client_metadata = {
+    redirect_uris: Required([validURL]),
+    response_types: Optional([]),
+    grant_types: Optional(anyOf('authorization_code','refresh_token')), //TODO: match response_types with grant_types
+    application_type: Optional(oneOf('native','web')),
+    contacts: Optional([validEmail]),
+    client_name: Optional(String),
+    logo_uri: Optional(validURL),
+    client_uri: Optional(validURL),
+    policy_uri: Optional(validURL),
+    tos_uri: Optional(validURL),
+    jwks_uri: Optional(validURL, not(MustHave('jwks'))),
+    jwks: Optional(validURL, not(MustHave('jwks_uri'))),
+    sector_identifier_uri: Optional(validURL),
+    subject_type: Optional(String),
+    id_token_signed_response_alg: Optional(oneOf(...validJWA)),
+    id_token_encrypted_response_alg: Optional(oneOf(...validJWA)),
+    id_token_encrypted_response_enc: Optional(oneOf(...validJWA), MustHave('id_token_encrypted_response_alg')),
+    userinfo_signed_response_alg: Optional(oneOf(...validJWA)),
+    userinfo_encrypted_response_alg: Optional(oneOf(...validJWA)),
+    userinfo_encrypted_response_enc: Optional(oneOf(...validJWA), MustHave('userinfo_encrypted_response_alg')),
+    request_object_signing_alg: Optional(oneOf(...validJWA)),
+    request_object_encryption_alg: Optional(oneOf(...validJWA)),
+    request_object_encryption_enc: Optional(oneOf(...validJWA)),
+    token_endpoint_auth_method: Optional(oneOf(...validAuthMethods)),
+    token_endpoint_auth_signing_alg: Optional(oneOf(...validJWA)),
+    default_max_age: Optional(Number),
+    require_auth_time: Optional(Boolean),
+    default_acr_values: Optional([String]),
+    initiate_login_uri: Optional([validURL]),
+    request_uris: Optional([validURL])
+  }
+
+  assert(options, {
+    client: Optional(instanceOf(metro.client().constructor)),
+    registration_endpoint: validURL, 
+    client_info: openid_client_metadata
+  })
+```
 
 _Note:_ This library was created as part of the [@muze-nl/metro](https://github.com/muze-nl/metro/) package initially, but has escaped its confines. In the rest of the documentation, when referring to 'middleware', we mean middleware modules for the metro http client in the browser.
 
@@ -27,16 +77,16 @@ import { assert, enable, disable, Optional, Required, Recommended, oneOf, anyOf,
 
 ### Using a CDN like jsdelivr
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@muze-nl/assert@0.1.1/dist/browser.js" integrity="sha384-fqO47gvA1/4UGo0iokMu6ZXdBCkRUbNfXejhrmZrWpJaP+7FPaJqJ03Irhzl1ifk" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@muze-nl/assert@0.3.4/dist/browser.js" crossorigin="anonymous"></script>
 ```
-
-_Note_: jsdelivr.com doesn't calculate the integrity hash for you, I've used https://www.srihash.org here.
 
 Using a CDN like this means that assert is loaded globally as window.assert.
 
 ## Usage
 
 ```javascript
+import { assert, Optional, Required, not, validURL } from '@muze-nl/assert'
+
 function myFunction(param1, param2) {
   assert(param1, Required(validURL))
   assert(param2, Optional(not(/foo.*/)))
@@ -47,7 +97,9 @@ function myFunction(param1, param2) {
 When calling myFunction above, none of the assertions are actually checked, unless you enable assertion checking first, like this:
 
 ```javascript
-enable()
+import * as assert from '@muze-nl/assert'
+
+assert.enable()
 ```
 
 ## Asserting preconditions
@@ -105,6 +157,5 @@ assert.enable()
 
 Once the [`assert.enable()`](./docs/enable.md) function is called, now `assert.check()` will throw an error if any assertion fails. The error is also logged to the console.
 
-
-[project-stage-badge: Experimental]: https://img.shields.io/badge/Project%20Stage-Experimental-yellow.svg
+[project-stage-badge: Development]: https://img.shields.io/badge/Project%20Stage-Development-yellowgreen.svg
 [project-stage-page]: https://blog.pother.ca/project-stages/
