@@ -77,7 +77,7 @@ export function Required(pattern) {
 export function Recommended(pattern) {
 	return function _Recommended(data, root, path) {
 		if (data==null || typeof data == 'undefined') {
-			console.warn('data does not contain recommended value', data, pattern, path)
+			warn('data does not contain recommended value', data, pattern, path)
 			return false
 		} else {
 			return fails(data, pattern, root, path)
@@ -293,13 +293,17 @@ export function fails(data, pattern, root, path='') {
  */ 
 export function error(message, found, expected, path, problems) {
 	let result = {
+		path,
 		message,
 		found,
-		expected,
-		path
+		expected
 	}
 	if (problems) {
 		result.problems = problems
 	}
 	return result
+}
+
+export function warn(message, data, pattern, path) {
+	console.warn('🅰️  Assert: '+path, message, pattern, data)
 }
