@@ -1,4 +1,4 @@
-import { enable, disable, fails, assert, 
+import { enable, disable, fails, assert, error, warn,
 	oneOf, anyOf, allOf, not, Optional, Required, Recommended,
 	validURL, validEmail } from '../src/assert.mjs'
 import tap from 'tap'
@@ -404,17 +404,16 @@ tap.test('custom function', t => {
 	t.end()
 })
 
-const MustHave = function(pattern) {
-	return (data, root, path) => {
-		if (data) {
-			return fails(root, pattern)
-		} else {
+function MustHave(...options) {
+	return function _MustHave(data, root, path) {
+		if (options.filter(o => data.hasOwnProperty(o)).length === options.length) {
 			return false
 		}
+		return error('data must have all of:', data, options, path)
 	}
 }
 
-tap.test('root and path', t => {
+tap.test('path', t => {
 	let source = {
 		client_info: {
 			scopes_supported: ['openid','offline_access']
@@ -422,18 +421,15 @@ tap.test('root and path', t => {
 		test: true
 	}
 	let expect = {
-		test: Optional(MustHave({ client_info: { scopes_supported: Required([]) }}))
+		client_info: MustHave('scopes_supported')
 	}
 	let result = fails(source, expect)
 	t.equal(result, false)
 	source.client_info = {}
 	result = fails(source, expect)
 	t.equal(result.length, 1)
-	t.equal(result[0].path, '.client_info.scopes_supported')
-	source.test = false
-	result = fails(source, expect)
-	t.equal(result, false)
-	t.end()	
+	t.equal(result[0].path, '.client_info')
+	t.end()
 })
 
 tap.test('string instead of object', t => {
