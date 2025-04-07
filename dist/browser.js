@@ -1,1 +1,251 @@
-(()=>{var m=Object.defineProperty;var b=(e,o)=>{for(var n in o)m(e,n,{get:o[n],enumerable:!0})};var c={};b(c,{Optional:()=>A,Recommended:()=>g,Required:()=>O,allOf:()=>R,anyOf:()=>v,assert:()=>h,disable:()=>d,enable:()=>x,error:()=>s,fails:()=>l,instanceOf:()=>_,not:()=>a,oneOf:()=>y,validEmail:()=>E,validURL:()=>w});globalThis.assertEnabled=!1;function x(){globalThis.assertEnabled=!0}function d(){globalThis.assertEnabled=!1}function h(e,o){if(globalThis.assertEnabled){let n=l(e,o);if(n)throw console.error("\u{1F170}\uFE0F  Assertions failed because of:",n,"in this source:",e),new Error("Assertions failed",{cause:{problems:n,source:e}})}}function A(e){return function(n,r,i){if(typeof n<"u"&&n!=null&&typeof e<"u")return l(n,e,r,i)}}function O(e){return function(n,r,i){return n==null||typeof n>"u"?s("data is required",n,e||"any value",i):typeof e<"u"?l(n,e,r,i):!1}}function g(e){return function(n,r,i){return n==null||typeof n>"u"?(console.warn("data does not contain recommended value",n,e,i),!1):l(n,e,r,i)}}function y(...e){return function(n,r,i){for(let f of e)if(!l(n,f,r,i))return!1;return s("data does not match oneOf patterns",n,e,i)}}function v(...e){return function(n,r,i){if(!Array.isArray(n))return s("data is not an array",n,"anyOf",i);for(let f of n)if(y(...e)(f))return s("data does not match anyOf patterns",f,e,i);return!1}}function R(...e){return function(n,r,i){let f=[];for(let t of e)f=f.concat(l(n,t,r,i));if(f=f.filter(Boolean),f.length)return s("data does not match all given patterns",n,e,i,f)}}function w(e,o,n){try{e instanceof URL&&(e=e.href);let r=new URL(e);if(r.href!=e&&!(r.href+"/"==e||r.href==e+"/"))return s("data is not a valid url",e,"validURL",n)}catch{return s("data is not a valid url",e,"validURL",n)}}function E(e,o,n){if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))return s("data is not a valid email",e,"validEmail",n)}function _(e){return function(n,r,i){if(!(n instanceof e))return s("data is not an instanceof pattern",n,e,i)}}function a(e){return function(n,r,i){if(!l(n,e,r,i))return s("data matches pattern, when required not to",n,e,i)}}function l(e,o,n,r=""){n||(n=e);let i=[];if(o===Boolean)typeof e!="boolean"&&!(e instanceof Boolean)&&i.push(s("data is not a boolean",e,o,r));else if(o===Number)typeof e!="number"&&!(e instanceof Number)&&i.push(s("data is not a number",e,o,r));else if(o===String)typeof e!="string"&&!(e instanceof String)&&i.push(s("data is not a string",e,o,r)),e==""&&i.push(s("data is an empty string, which is not allowed",e,o,r));else if(o instanceof RegExp)if(Array.isArray(e)){let f=e.findIndex((t,u)=>l(t,o,n,r+"["+u+"]"));f>-1&&i.push(s("data["+f+"] does not match pattern",e[f],o,r+"["+f+"]"))}else typeof e>"u"?i.push(s("data is undefined, should match pattern",e,o,r)):o.test(e)||i.push(s("data does not match pattern",e,o,r));else if(o instanceof Function){let f=o(e,n,r);f&&(Array.isArray(f)?i=i.concat(f):i.push(f))}else if(Array.isArray(o)){Array.isArray(e)||i.push(s("data is not an array",e,[],r));for(let f of o)for(let t of e.keys()){let u=l(e[t],f,n,r+"["+t+"]");Array.isArray(u)?i=i.concat(u):u&&i.push(u)}}else if(o&&typeof o=="object")if(Array.isArray(e)){let f=e.findIndex((t,u)=>l(t,o,n,r+"["+u+"]"));f>-1&&i.push(s("data["+f+"] does not match pattern",e[f],o,r+"["+f+"]"))}else if(!e||typeof e!="object")i.push(s("data is not an object, pattern is",e,o,r));else if(e instanceof URLSearchParams&&(e=Object.fromEntries(e)),o instanceof Function){let f=l(e,o,n,r);f&&(i=i.concat(f))}else for(let[f,t]of Object.entries(o)){let u=l(e[f],t,n,r+"."+f);u&&(i=i.concat(u))}else o!=e&&i.push(s("data and pattern are not equal",e,o,r));return i.length?i:!1}function s(e,o,n,r,i){let f={message:e,found:o,expected:n,path:r};return i&&(f.problems=i),f}globalThis.assert=c;})();
+(() => {
+  var __defProp = Object.defineProperty;
+  var __export = (target, all) => {
+    for (var name in all)
+      __defProp(target, name, { get: all[name], enumerable: true });
+  };
+
+  // src/assert.mjs
+  var assert_exports = {};
+  __export(assert_exports, {
+    Optional: () => Optional,
+    Recommended: () => Recommended,
+    Required: () => Required,
+    allOf: () => allOf,
+    anyOf: () => anyOf,
+    assert: () => assert,
+    disable: () => disable,
+    enable: () => enable,
+    error: () => error,
+    fails: () => fails,
+    instanceOf: () => instanceOf,
+    not: () => not,
+    oneOf: () => oneOf,
+    validEmail: () => validEmail,
+    validURL: () => validURL,
+    warn: () => warn
+  });
+  globalThis.assertEnabled = false;
+  function enable() {
+    globalThis.assertEnabled = true;
+  }
+  function disable() {
+    globalThis.assertEnabled = false;
+  }
+  function assert(source, test) {
+    if (globalThis.assertEnabled) {
+      let problems = fails(source, test);
+      if (problems) {
+        console.error("\u{1F170}\uFE0F  Assertions failed because of:", problems, "in this source:", source);
+        throw new Error("Assertions failed", {
+          cause: { problems, source }
+        });
+      }
+    }
+  }
+  function Optional(pattern) {
+    return function _Optional(data, root, path) {
+      if (typeof data != "undefined" && data != null && typeof pattern != "undefined") {
+        return fails(data, pattern, root, path);
+      }
+    };
+  }
+  function Required(pattern) {
+    return function _Required(data, root, path) {
+      if (data == null || typeof data == "undefined") {
+        return error("data is required", data, pattern || "any value", path);
+      } else if (typeof pattern != "undefined") {
+        return fails(data, pattern, root, path);
+      } else {
+        return false;
+      }
+    };
+  }
+  function Recommended(pattern) {
+    return function _Recommended(data, root, path) {
+      if (data == null || typeof data == "undefined") {
+        warn("data does not contain recommended value", data, pattern, path);
+        return false;
+      } else {
+        return fails(data, pattern, root, path);
+      }
+    };
+  }
+  function oneOf(...patterns) {
+    return function _oneOf(data, root, path) {
+      for (let pattern of patterns) {
+        if (!fails(data, pattern, root, path)) {
+          return false;
+        }
+      }
+      return error("data does not match oneOf patterns", data, patterns, path);
+    };
+  }
+  function anyOf(...patterns) {
+    return function _anyOf(data, root, path) {
+      if (!Array.isArray(data)) {
+        return error("data is not an array", data, "anyOf", path);
+      }
+      for (let value of data) {
+        if (oneOf(...patterns)(value)) {
+          return error("data does not match anyOf patterns", value, patterns, path);
+        }
+      }
+      return false;
+    };
+  }
+  function allOf(...patterns) {
+    return function _allOf(data, root, path) {
+      let problems = [];
+      for (let pattern of patterns) {
+        problems = problems.concat(fails(data, pattern, root, path));
+      }
+      problems = problems.filter(Boolean);
+      if (problems.length) {
+        return error("data does not match all given patterns", data, patterns, path, problems);
+      }
+    };
+  }
+  function validURL(data, root, path) {
+    try {
+      if (data instanceof URL) {
+        data = data.href;
+      }
+      let url = new URL(data);
+      if (url.href != data) {
+        if (!(url.href + "/" == data || url.href == data + "/")) {
+          return error("data is not a valid url", data, "validURL", path);
+        }
+      }
+    } catch (e) {
+      return error("data is not a valid url", data, "validURL", path);
+    }
+  }
+  function validEmail(data, root, path) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data)) {
+      return error("data is not a valid email", data, "validEmail", path);
+    }
+  }
+  function instanceOf(constructor) {
+    return function _instanceOf(data, root, path) {
+      if (!(data instanceof constructor)) {
+        return error("data is not an instanceof pattern", data, constructor, path);
+      }
+    };
+  }
+  function not(pattern) {
+    return function _not(data, root, path) {
+      if (!fails(data, pattern, root, path)) {
+        return error("data matches pattern, when required not to", data, pattern, path);
+      }
+    };
+  }
+  function fails(data, pattern, root, path = "") {
+    if (!root) {
+      root = data;
+    }
+    let problems = [];
+    if (pattern === Boolean) {
+      if (typeof data != "boolean" && !(data instanceof Boolean)) {
+        problems.push(error("data is not a boolean", data, pattern, path));
+      }
+    } else if (pattern === Number) {
+      if (typeof data != "number" && !(data instanceof Number)) {
+        problems.push(error("data is not a number", data, pattern, path));
+      }
+    } else if (pattern === String) {
+      if (typeof data != "string" && !(data instanceof String)) {
+        problems.push(error("data is not a string", data, pattern, path));
+      }
+      if (data == "") {
+        problems.push(error("data is an empty string, which is not allowed", data, pattern, path));
+      }
+    } else if (pattern instanceof RegExp) {
+      if (Array.isArray(data)) {
+        let index = data.findIndex((element, index2) => fails(element, pattern, root, path + "[" + index2 + "]"));
+        if (index > -1) {
+          problems.push(error("data[" + index + "] does not match pattern", data[index], pattern, path + "[" + index + "]"));
+        }
+      } else if (typeof data == "undefined") {
+        problems.push(error("data is undefined, should match pattern", data, pattern, path));
+      } else if (!pattern.test(data)) {
+        problems.push(error("data does not match pattern", data, pattern, path));
+      }
+    } else if (pattern instanceof Function) {
+      let problem = pattern(data, root, path);
+      if (problem) {
+        if (Array.isArray(problem)) {
+          problems = problems.concat(problem);
+        } else {
+          problems.push(problem);
+        }
+      }
+    } else if (Array.isArray(pattern)) {
+      if (!Array.isArray(data)) {
+        problems.push(error("data is not an array", data, [], path));
+      }
+      for (let p of pattern) {
+        for (let index of data.keys()) {
+          let problem = fails(data[index], p, root, path + "[" + index + "]");
+          if (Array.isArray(problem)) {
+            problems = problems.concat(problem);
+          } else if (problem) {
+            problems.push(problem);
+          }
+        }
+      }
+    } else if (pattern && typeof pattern == "object") {
+      if (Array.isArray(data)) {
+        let index = data.findIndex((element, index2) => fails(element, pattern, root, path + "[" + index2 + "]"));
+        if (index > -1) {
+          problems.push(error("data[" + index + "] does not match pattern", data[index], pattern, path + "[" + index + "]"));
+        }
+      } else if (!data || typeof data != "object") {
+        problems.push(error("data is not an object, pattern is", data, pattern, path));
+      } else {
+        if (data instanceof URLSearchParams) {
+          data = Object.fromEntries(data);
+        }
+        if (pattern instanceof Function) {
+          let result = fails(data, pattern, root, path);
+          if (result) {
+            problems = problems.concat(result);
+          }
+        } else {
+          for (const [patternKey, subpattern] of Object.entries(pattern)) {
+            let result = fails(data[patternKey], subpattern, root, path + "." + patternKey);
+            if (result) {
+              problems = problems.concat(result);
+            }
+          }
+        }
+      }
+    } else {
+      if (pattern != data) {
+        problems.push(error("data and pattern are not equal", data, pattern, path));
+      }
+    }
+    if (problems.length) {
+      return problems;
+    }
+    return false;
+  }
+  function error(message, found, expected, path, problems) {
+    let result = {
+      path,
+      message,
+      found,
+      expected
+    };
+    if (problems) {
+      result.problems = problems;
+    }
+    return result;
+  }
+  function warn(message, data, pattern, path) {
+    console.warn("\u{1F170}\uFE0F  Assert: " + path, message, pattern, data);
+  }
+
+  // src/browser.mjs
+  globalThis.assert = assert_exports;
+})();

@@ -1,14 +1,14 @@
 {
   "name": "@muze-nl/assert",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "light optional assert library",
   "type": "module",
   "main": "src/assert.mjs",
   "scripts": {
     "test": "tap test/*.mjs",
     "tap": "tap",
-    "build": "npx esbuild --bundle src/browser.mjs --outdir=dist --minify",
-    "build-dev": "npx esbuild --bundle src/browser.mjs --outdir=dist"
+    "build": "npx esbuild --bundle src/browser.mjs --outfile=dist/browser.min.js --minify --sourcemap",
+    "build-dev": "npx esbuild --bundle src/browser.mjs --outfile=dist/browser.js"
   },
   "repository": {
     "type": "git",
