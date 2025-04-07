@@ -4,9 +4,9 @@ This function is used to return problems found in a validator, e.g:
 
 ```javascript
 function myValidator(pattern) {
-	return function(data) {
+	return function(data, root, path) {
 		if (fails(data, pattern)) {
-			return error('data fails myValidator', data, pattern)
+			return error('data fails myValidator', data, pattern, path)
 		}
 		return false
 	}
