@@ -248,4 +248,5 @@
 
   // src/browser.mjs
   globalThis.assert = assert_exports;
+  var browser_default = assert_exports;
 })();
