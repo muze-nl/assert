@@ -3,7 +3,6 @@
   "version": "0.5.0",
   "description": "light optional assert library",
   "type": "module",
-  "sideEffects": false,
   "main": "src/browser.mjs",
   "scripts": {
     "test": "tap test/*.mjs",
