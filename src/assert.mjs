@@ -307,3 +307,22 @@ export function error(message, found, expected, path, problems) {
 export function warn(message, data, pattern, path) {
 	console.warn('🅰️  Assert: '+path, message, pattern, data)
 }
+
+globalThis.assert = {
+	warn,
+	error,
+	assert,
+	enable,
+	disable,
+	Required,
+	Recommended,
+	Optional,
+	oneOf,
+	anyOf,
+	allOf,
+	validURL,
+	validEmail,
+	instanceOf,
+	not,
+	fails
+}
