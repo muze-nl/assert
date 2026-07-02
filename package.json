@@ -45,7 +45,7 @@
     "/LICENSE",
     "/README.md"
   ],
-  "source": [ "src/browser.mjs" ],
+  "source": [ "src/assert.mjs" ],
   "targets": {
     "default": {
       "distDir": "./dist",

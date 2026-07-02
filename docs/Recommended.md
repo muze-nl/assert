@@ -1,6 +1,6 @@
 # Recommended
 
-This assertion works identical to [`Optional()`](./Optional.md), with the addition that if the optional value is not set, it will write a console.warning that mentions that the value is recommended.
+This assertion works identical to [`Optional()`](./Optional.md), with the addition that if the optional value is not set, it will write a `console.warn()` message that mentions that the value is recommended.
 
 ```javascript
 import {assert, Recommended} from '@muze-nl/assert'

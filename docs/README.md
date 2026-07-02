@@ -1,11 +1,14 @@
 # Assert
 
 The assert library allows you to add assertion asserts in your code, e.g. middleware components.
-Assertion checking can be turned on and off globally, so you can enable it in a development setting, but disable it in production.
+Assertion checking can be turned on and off for the imported module, so you can enable it in a development setting, but disable it in production.
 
-If you use the [`assert.assert()`](./assert.md) method in your middleware, users can turn assertion asserting on or off. If you use the [`assert.fails`](./fails.md) method directly, these assertions will always be asserted. They can't be turned off.
+If you use the [`assert.assert()`](./assert.md) method in your middleware, users can turn assertion checking on or off. If you use the [`assert.fails`](./fails.md) method directly, these assertions will always be checked. They can't be turned off.
+
+Most examples import from `@muze-nl/assert`, which also assigns the API to `globalThis.assert` for compatibility. Use `@muze-nl/assert/core` if you want the same API from a tree-shakeable entry point with no global side effects.
 
 ## Methods
+- [`allOf`](./allOf.md)
 - [`anyOf`](./anyOf.md)
 - [`assert`](./assert.md)
 - [`disable`](./disable.md)
@@ -43,10 +46,10 @@ And you can use this as follows:
 
 ```javascript
 assert(data, {
-	id_token_encrypted_response_enc: Optional(
+	id_token_encrypted_response_enc: Optional(allOf(
 		oneOf(...validJWA), 
 		MustHave('id_token_encrypted_response_alg')
-	)
+	))
 })
 ```
 

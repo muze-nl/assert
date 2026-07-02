@@ -8,4 +8,4 @@ import { assert, instanceOf } from '@muze-nl/assert'
 assert(url, instanceOf(URL))
 ```
 
-Which will throw an error if the given url is not an instance of URL. (If assertion testing is ['enabled'](./enable.md))
+Which will throw an error if the given url is not an instance of URL, if assertion testing is [enabled](./enable.md).

@@ -1,10 +1,10 @@
 # Optional
 
 ```
-Optional(...assertions): Function
+Optional(assertion): Function
 ```
 
-This function is meant to be used as part of an assertion in [`assert.fails()`](./fails.md), e.g:
+This function is meant to be used as part of an assertion in [`fails()`](./fails.md), e.g:
 
 ```javascript
 import {assert, Optional} from '@muze-nl/assert'
