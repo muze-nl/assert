@@ -1,6 +1,6 @@
 import { enable, disable, fails, issues, assert, error, warn,
 	oneOf, anyOf, allOf, not, Optional, Required, Recommended,
-	validURL, validEmail, instanceOf, formatIssue, formatIssues, pathToArray, pathToString } from '../src/assert.mjs'
+	validURL, validEmail, instanceOf, formatIssue, formatIssues } from '../src/assert.mjs'
 import tap from 'tap'
 
 tap.test('start', t => {
@@ -245,6 +245,12 @@ tap.test('validURL', t => {
 	t.end()
 })
 
+tap.test('validURL accepts URL instances', t => {
+	let result = fails(new URL('https://example.com/callback'), validURL)
+	t.equal(result, false)
+	t.end()
+})
+
 tap.test('validEmail', t => {
 	const validEmails = [
 		'something@something.com',
@@ -278,6 +284,36 @@ tap.test('validEmail', t => {
 			console.log(email, 'should fail to assert')
 		}
 	}
+	t.end()
+})
+
+tap.test('Recommended warns but accepts missing values', t => {
+	let oldConsoleWarn = console.warn
+	let warnings = []
+	console.warn = (...args) => warnings.push(args)
+	try {
+		let result = fails({}, {
+			display_name: Recommended(String)
+		})
+		t.equal(result, false)
+		t.equal(warnings.length, 1)
+		t.equal(warnings[0][1], 'data does not contain recommended value')
+		t.equal(fails({ display_name: 'Ada' }, {
+			display_name: Recommended(String)
+		}), false)
+	} finally {
+		console.warn = oldConsoleWarn
+	}
+	t.end()
+})
+
+tap.test('Required accepts any present value when no pattern is given', t => {
+	let result = fails({
+		metadata: {}
+	}, {
+		metadata: Required()
+	})
+	t.equal(result, false)
 	t.end()
 })
 
@@ -364,6 +400,31 @@ tap.test('array incorrect', t => {
 	}
 	let result = fails(source, expect)
 	t.equal(result.length, 2)
+	t.end()
+})
+
+tap.test('array patterns can use custom validators', t => {
+	let startsWithA = (value, root, path) => value.startsWith('a') ? false : error('must start with a', value, 'a*', path)
+	let result = fails({
+		items: ['alpha', 'beta']
+	}, {
+		items: [startsWithA]
+	})
+	t.equal(result.length, 1)
+	t.equal(result[0].message, 'must start with a')
+	t.equal(result[0].pathString, 'items[1]')
+	t.end()
+})
+
+tap.test('URLSearchParams can be matched as an object', t => {
+	let result = fails(new URLSearchParams({
+		client_id: 'abc',
+		redirect_uri: 'https://example.com/callback'
+	}), {
+		client_id: String,
+		redirect_uri: validURL
+	})
+	t.equal(result, false)
 	t.end()
 })
 
@@ -516,11 +577,27 @@ tap.test('issues preserves item path for anyOf failures', t => {
 	t.end()
 })
 
-tap.test('path helpers convert between string and array paths', t => {
-	t.same(pathToArray('.client_info.redirect_uris[1]'), ['client_info', 'redirect_uris', 1])
-	t.equal(pathToString(['client_info', 'redirect_uris', 1]), 'client_info.redirect_uris[1]')
-	t.same(pathToArray('[0].name'), [0, 'name'])
-	t.equal(pathToString([0, 'name']), '[0].name')
+tap.test('issues normalizes custom validator problem arrays', t => {
+	let result = issues({ code: 'x' }, {
+		code: () => [false, 'plain problem', error('custom problem', 'x', 'y')]
+	})
+	t.equal(result.length, 2)
+	t.same(result[0].path, [])
+	t.equal(result[0].message, 'plain problem')
+	t.equal(result[0].actual, undefined)
+	t.equal(formatIssue(result[0]), 'value: plain problem')
+	t.equal(result[1].message, 'custom problem')
+	t.end()
+})
+
+tap.test('errors expose string and array paths', t => {
+	let nested = error('message', 'found', 'expected', '.client_info.redirect_uris[1]')
+	t.same(nested.pathParts, ['client_info', 'redirect_uris', 1])
+	t.equal(nested.pathString, 'client_info.redirect_uris[1]')
+
+	let indexed = error('message', 'found', 'expected', [0, 'name'])
+	t.same(indexed.pathParts, [0, 'name'])
+	t.equal(indexed.pathString, '[0].name')
 	t.end()
 })
 
@@ -625,6 +702,16 @@ tap.test('formatIssues truncates long values but issues keep raw actual values',
 	t.end()
 })
 
+tap.test('formatIssues describes circular values', t => {
+	let circular = {}
+	circular.self = circular
+	let result = issues({ value: circular }, { value: 'literal' })
+	t.same(formatIssues(result), [
+		"  - value: expected 'literal', found [object Object]"
+	])
+	t.end()
+})
+
 tap.test('formatIssue stays unindented, formatIssues is indented for console output', t => {
 	let result = issues({ foo: 1 }, { foo: String })
 	t.equal(formatIssue(result[0]), 'foo: data is not a string')
@@ -637,6 +724,15 @@ tap.test('formatIssue stays unindented, formatIssues is indented for console out
 	t.same(formatIssues(result, { indent: '' }), [
 		'foo: data is not a string'
 	])
+	t.end()
+})
+
+tap.test('format helpers handle plain values', t => {
+	t.equal(formatIssue('not an issue object'), 'not an issue object')
+	t.same(formatIssues('not an issue object'), [
+		'not an issue object'
+	])
+	t.equal(formatIssues(false), false)
 	t.end()
 })
 

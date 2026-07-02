@@ -36,7 +36,7 @@ function appendPath(path='', key) {
 	return `${path}.${key}`
 }
 
-export function pathToArray(path='') {
+function pathToArray(path='') {
 	if (Array.isArray(path)) {
 		return path
 	}
@@ -56,7 +56,7 @@ export function pathToArray(path='') {
 	return result
 }
 
-export function pathToString(path=[]) {
+function pathToString(path=[]) {
 	if (typeof path == 'string') {
 		return path.startsWith('.') ? path.slice(1) : path
 	}
@@ -572,7 +572,5 @@ globalThis.assert = {
 	fails,
 	issues,
 	formatIssue,
-	formatIssues,
-	pathToArray,
-	pathToString
+	formatIssues
 }

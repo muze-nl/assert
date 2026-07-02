@@ -5,7 +5,7 @@
   "type": "module",
   "main": "src/assert.mjs",
   "scripts": {
-    "test": "tap test/*.mjs",
+    "test": "tap --coverage-report=text --show-full-coverage --allow-incomplete-coverage test/*.mjs",
     "tap": "tap",
     "build": "npx esbuild --bundle src/assert.mjs --outfile=dist/assert.min.js --minify --sourcemap",
     "build-dev": "npx esbuild --bundle src/assert.mjs --outfile=dist/assert.js"
@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/muze-nl/assert/#readme",
   "devDependencies": {
-    "tap": "^16.0.1"
+    "tap": "^21.7.4"
   },
   "engines": {
     "node": ">=20.0.0"
