@@ -68,6 +68,7 @@ This loads the API as `window.assert`.
 ## Documentation
 
 - [Documentation index](docs/)
+- [Tutorial](docs/tutorial.md)
 - [Reference](docs/reference/)
 - [Creating custom assertion checks](docs/reference/#creating-custom-assertion-checks)
 - [fails()](docs/reference/fails.md), [issues()](docs/reference/issues.md), and [formatIssues()](docs/reference/formatIssues.md)
