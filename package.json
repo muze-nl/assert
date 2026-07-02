@@ -4,6 +4,19 @@
   "description": "light optional assert library",
   "type": "module",
   "main": "src/assert.mjs",
+  "exports": {
+    ".": {
+      "import": "./src/assert.mjs",
+      "default": "./src/assert.mjs"
+    },
+    "./core": {
+      "import": "./src/assert-core.mjs",
+      "default": "./src/assert-core.mjs"
+    }
+  },
+  "sideEffects": [
+    "./src/assert.mjs"
+  ],
   "scripts": {
     "test": "tap --coverage-report=text --show-full-coverage --allow-incomplete-coverage test/*.mjs",
     "tap": "tap",

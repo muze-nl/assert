@@ -75,6 +75,12 @@ Or if you are a fan of shorter assertions:
 import { assert, enable, disable, Optional, Required, Recommended, oneOf, anyOf, not, validURL, instanceOf } from '@muze-nl/assert'
 ```
 
+If you want a tree-shakeable entry point with no global side effects, import from the core subpath:
+
+```javascript
+import { assert, enable, Optional, Required, validURL } from '@muze-nl/assert/core'
+```
+
 ### Using a CDN like jsdelivr
 ```html
 <script src="https://cdn.jsdelivr.net/npm/@muze-nl/assert@0.3.4/dist/browser.js" crossorigin="anonymous"></script>
