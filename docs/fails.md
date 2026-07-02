@@ -11,7 +11,7 @@ if (problems) {
 }
 ```
 
-This checks if data matches all of the assertions. If any assertion fails, this will return an array of failed assertions.
+This checks if data matches all of the assertions. If any assertion fails, this will return an array of failed assertions. For a normalized, path-aware form of the same failures, use [`issues()`](./issues.md).
 
 If data is an object, assertions must also be an object. For any property of data, you can add the same property to an assertion object. That assertion can be:
 

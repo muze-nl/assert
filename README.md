@@ -112,7 +112,9 @@ The [oauth2 middleware](https://github.com/muze-nl/metro-oauth2) for example, ha
 
 Since these mock middleware servers are especially meant for the initial development of new middleware, they should assert as much as they can. And send comprehensive error messages to the console. Here the [`assert.fails()`](./docs/fails.md) method comes in handy.
 
-`assert.fails()` returns `false` if there are no problems. If one or more assertions do fail, it will return an array with messages about each failed assertion. So one way of using it is like this:
+`assert.fails()` returns `false` if there are no problems. If one or more assertions do fail, it will return an array with problem objects about each failed assertion. For newer code that wants normalized, path-aware output, `assert.issues()` returns structured issue objects with `path` as an array, `pathString`, `message`, `expected`, and `actual`. `assert.formatIssues()` turns those structured issues into concise console lines such as `  - foo: data is not a string` or `  - response_type: expected 'code', found 'token'`. The bullet indentation keeps multiple assertion failures readable in the console.
+
+So one way of using `fails()` is like this:
 
 ```javascript
 let error
@@ -155,7 +157,7 @@ This makes sure that the `client_id` and `authRedirectURL` configuration options
 assert.enable()
 ```
 
-Once the [`assert.enable()`](./docs/enable.md) function is called, now `assert.check()` will throw an error if any assertion fails. The error is also logged to the console.
+Once the [`assert.enable()`](./docs/enable.md) function is called, now `assert.assert()` will throw an error if any assertion fails. The error is also logged to the console as concise path-aware lines. The thrown error includes both `error.cause.problems` for compatibility and `error.cause.issues` for normalized, path-aware reporting.
 
 [project-stage-badge: Development]: https://img.shields.io/badge/Project%20Stage-Development-yellowgreen.svg
 [project-stage-page]: https://blog.pother.ca/project-stages/
