@@ -4,158 +4,78 @@
 [![npm bundle size](https://img.shields.io/bundlephobia/min/@muze-nl/assert)](https://www.npmjs.com/package/@muze-nl/assert)
 [![Project stage: Development][project-stage-badge: Development]][project-stage-page]
 
-# Assert: javascript optional assertion checking
-
-This is a light-weight library to do optional assertion checking. By default any assertions made are not tested. Assertion code is not run. Unless you toggle assertion checking, usually in developer mode, by calling `enable`. Now your assertions are run, and if any assertions fail, an error is thrown with information about the specific failure.
-
-This style of assertion testing is often used with [Design by Contract](https://en.wikipedia.org/wiki/Design_by_contract) software development. When implementing a fixed specification, like a W3C recommendation or RFC, using design by contract allows you to write code very similar to the specification.
-
-Here is an example from the [@muze-nl/metro-oidc](https://github.com/muze-nl/,etro-oidc) library, which shows how you can use Assert to check specification requirements, in a dense but readable way:
+# Assert: optional assertion checking
 
 ```javascript
-  // https://openid.net/specs/openid-connect-registration-1_0.html#ClientMetadata
-  const openid_client_metadata = {
-    redirect_uris: Required([validURL]),
-    response_types: Optional([]),
-    grant_types: Optional(anyOf('authorization_code','refresh_token')), //TODO: match response_types with grant_types
-    application_type: Optional(oneOf('native','web')),
-    contacts: Optional([validEmail]),
-    client_name: Optional(String),
-    logo_uri: Optional(validURL),
-    client_uri: Optional(validURL),
-    policy_uri: Optional(validURL),
-    tos_uri: Optional(validURL),
-    jwks_uri: Optional(validURL, not(MustHave('jwks'))),
-    jwks: Optional(validURL, not(MustHave('jwks_uri'))),
-    sector_identifier_uri: Optional(validURL),
-    subject_type: Optional(String),
-    id_token_signed_response_alg: Optional(oneOf(...validJWA)),
-    id_token_encrypted_response_alg: Optional(oneOf(...validJWA)),
-    id_token_encrypted_response_enc: Optional(oneOf(...validJWA), MustHave('id_token_encrypted_response_alg')),
-    userinfo_signed_response_alg: Optional(oneOf(...validJWA)),
-    userinfo_encrypted_response_alg: Optional(oneOf(...validJWA)),
-    userinfo_encrypted_response_enc: Optional(oneOf(...validJWA), MustHave('userinfo_encrypted_response_alg')),
-    request_object_signing_alg: Optional(oneOf(...validJWA)),
-    request_object_encryption_alg: Optional(oneOf(...validJWA)),
-    request_object_encryption_enc: Optional(oneOf(...validJWA)),
-    token_endpoint_auth_method: Optional(oneOf(...validAuthMethods)),
-    token_endpoint_auth_signing_alg: Optional(oneOf(...validJWA)),
-    default_max_age: Optional(Number),
-    require_auth_time: Optional(Boolean),
-    default_acr_values: Optional([String]),
-    initiate_login_uri: Optional([validURL]),
-    request_uris: Optional([validURL])
-  }
+import { assert, enable, Optional, Required, oneOf, validURL } from '@muze-nl/assert/core'
 
-  assert(options, {
-    client: Optional(instanceOf(metro.client().constructor)),
-    registration_endpoint: validURL, 
-    client_info: openid_client_metadata
-  })
+enable()
+
+function registerClient(metadata) {
+	assert(metadata, {
+		redirect_uris: Required([validURL]),
+		application_type: Optional(oneOf('web', 'native')),
+		client_name: Optional(String)
+	})
+
+	// continue with metadata known to match the expected shape
+}
 ```
 
-_Note:_ This library was created as part of the [@muze-nl/metro](https://github.com/muze-nl/metro/) package initially, but has escaped its confines. In the rest of the documentation, when referring to 'middleware', we mean middleware modules for the metro http client in the browser.
+## Table of Contents
 
-## Installation
+1. [Introduction](#introduction)
+2. [Usage](#usage)
+3. [Documentation](#documentation)
+4. [License](#license)
 
-### Using NPM:
+## Introduction
+
+Assert is a lightweight library for optional runtime checks. It is meant for code that benefits from explicit developer feedback during development, but should not spend time validating assumptions in production unless you ask it to.
+
+Assertions are disabled by default. `assert()` returns immediately until you call `enable()`. When enabled, failed assertions throw an error with path-aware details. If you always want to validate and handle failures yourself, use `fails()` or `issues()` directly.
+
+This style is useful for design-by-contract checks, protocol implementations, middleware preconditions, mock servers, and other places where executable requirements make code easier to understand.
+
+## Usage
+
+Install with npm:
 
 ```shell
 npm install @muze-nl/assert
 ```
 
-The include it in your javascript code like this:
+Use the side-effect-free entry point when you want tree-shaking:
+
+```javascript
+import { assert, enable, Required, validURL } from '@muze-nl/assert/core'
+```
+
+The package root exports the same API and also assigns it to `globalThis.assert` for compatibility:
+
 ```javascript
 import * as assert from '@muze-nl/assert'
 ```
 
-Or if you are a fan of shorter assertions:
+In the browser, using a CDN:
 
-```javascript
-import { assert, enable, disable, Optional, Required, Recommended, oneOf, anyOf, not, validURL, instanceOf } from '@muze-nl/assert'
-```
-
-### Using a CDN like jsdelivr
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@muze-nl/assert@0.3.4/dist/browser.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@muze-nl/assert/dist/assert.min.js" crossorigin="anonymous"></script>
 ```
 
-Using a CDN like this means that assert is loaded globally as window.assert.
+This loads the API as `window.assert`.
 
-## Usage
+## Documentation
 
-```javascript
-import { assert, Optional, Required, not, validURL } from '@muze-nl/assert'
+- [Documentation index](docs/)
+- [Tutorial](docs/tutorial.md)
+- [Reference](docs/reference/)
+- [Creating custom assertion checks](docs/reference/#creating-custom-assertion-checks)
+- [fails()](docs/reference/fails.md), [issues()](docs/reference/issues.md), and [formatIssues()](docs/reference/formatIssues.md)
 
-function myFunction(param1, param2) {
-  assert(param1, Required(validURL))
-  assert(param2, Optional(not(/foo.*/)))
-  // do your own stuff here
-}
-```
+## License
 
-When calling myFunction above, none of the assertions are actually checked, unless you enable assertion checking first, like this:
-
-```javascript
-import * as assert from '@muze-nl/assert'
-
-assert.enable()
-```
-
-## Asserting preconditions
-
-When writing middleware there is usually quite a lot of preconditions to check. When a developer wants to use your middleware, it is nice to have explicit feedback about what he or she is doing wrong. However this is only useful during development. Once in production you should assume that there are no developer mistakes anymore... or at least that the end user has no use for detailed error reports about your middleware.
-
-This is especially true about mock middleware. Mock middleware is middleware that blocks the actual transmission of a request, and returns a mock response instead. Your browser doesn't actually fetch the requests URL.
-
-The [oauth2 middleware](https://github.com/muze-nl/metro-oauth2) for example, has unit tests that use the oauth2 mock-server middleware to mimick a server. This way you can be sure that the oauth2 client implementation works, without having to setup a real oauth2 server anywhere.
-
-Since these mock middleware servers are especially meant for the initial development of new middleware, they should assert as much as they can. And send comprehensive error messages to the console. Here the [`assert.fails()`](./docs/fails.md) method comes in handy.
-
-`assert.fails()` returns `false` if there are no problems. If one or more assertions do fail, it will return an array with messages about each failed assertion. So one way of using it is like this:
-
-```javascript
-let error
-
-if (error = assert.fails(url, {
-  searchParams: {
-    response_type: 'code',
-    client_id: 'mockClientId',
-    state: assert.Optional(/.+/)
-  }
-})) {
-  return metro.response({
-    url: req.url,
-    status: 400,
-    statusText: 'Bad Request',
-    body: '400 Bad Request'
-  })
-}
-```
-
-The first parameter to `assert.fails` contains the data you want to check. The second (or third, fourth, etc.) contain the assertions. If the data is an object, the assertions can use the same property names to add assertions for those specific properties. Here the `url.searchParams.response_type` must be equal to `code`, or the assertion will fail. You can also use numbers and booleans like this.
-
-You can also add functions to the assertions. In this case the `assert.optional()` method adds a function that will only fail if the property is set and not `null`, but does not match the assertions passed to `assert.optional()`.
-
-An assertion may also be a regular expression. If the property value fails to match that expression, the assertion fails. Here the `url.searchParams.state` is tested to make sure that, if it is set, it must not be empty.
-
-In a mock middleware function, it is all well and good to always test your preconditions. But in production many preconditions may be assumed to be valid. These preconditions are not expected to fail in production, only in development. In that case you may use [`assert.check()`]('./docs/check.md'). This function by default does nothing. Only when you enable assertions does this function do anything. This allows you to selectively turn on assertions only in a development context. And avoid doing unnecessary work while in production. This is how it is used in the [oauth2 middleware](./middleware/oauth2.md) (not the mock server, the actual client code):
-
-```javascript
-assert.assert(oauth2, {
-	client_id: /.+/,
-	authRedirectURL: /.+/,
-	scope: /.*/
-})
-```
-
-This makes sure that the `client_id` and `authRedirectURL` configuration options have been set and are not empty. But when the code is used in production, this should never happen. There is no need to constantly test for this. And in production it won't actually get checked. Only when you enable assertions will this code actually perform the tests:
-
-```javascript
-assert.enable()
-```
-
-Once the [`assert.enable()`](./docs/enable.md) function is called, now `assert.check()` will throw an error if any assertion fails. The error is also logged to the console.
+This software is licensed under the MIT open source license. See the [License](./LICENSE) file.
 
 [project-stage-badge: Development]: https://img.shields.io/badge/Project%20Stage-Development-yellowgreen.svg
 [project-stage-page]: https://blog.pother.ca/project-stages/
