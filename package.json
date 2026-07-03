@@ -42,7 +42,6 @@
   "files": [
     "/src",
     "/dist",
-    "/docs",
     "/LICENSE",
     "/README.md"
   ],
