@@ -33,9 +33,11 @@ function registerClient(metadata) {
 
 Assert is a lightweight library for optional runtime checks. It is meant for code that benefits from explicit developer feedback during development, but should not spend time validating assumptions in production unless you ask it to.
 
-Assertions are disabled by default. `assert()` returns immediately until you call `enable()`. When enabled, failed assertions throw an error with path-aware details. If you always want to validate and handle failures yourself, use `fails()` or `issues()` directly.
+Assertions are disabled by default. `assert()` returns immediately until you call `enable()`. When enabled, failed assertions throw an error with path-aware details. If a contract must always throw on failure, use `check()`. If you always want to validate and handle failures yourself, use `fails()` or `issues()` directly.
 
 This style is useful for design-by-contract checks, protocol implementations, middleware preconditions, mock servers, and other places where executable requirements make code easier to understand.
+
+The common constructor patterns are built in: `String`, `Number`, `Boolean`, `Array`, and `Object`. `String` requires a non-empty string, `Array` requires `Array.isArray(value)`, and `Object` requires a non-null object that is not an array.
 
 ## Usage
 
@@ -71,7 +73,7 @@ This loads the API as `window.assert`.
 - [Tutorial](docs/tutorial.md)
 - [Reference](docs/reference/)
 - [Creating custom assertion checks](docs/reference/#creating-custom-assertion-checks)
-- [fails()](docs/reference/fails.md), [issues()](docs/reference/issues.md), and [formatIssues()](docs/reference/formatIssues.md)
+- [check()](docs/reference/check.md), [fails()](docs/reference/fails.md), [issues()](docs/reference/issues.md), and [formatIssues()](docs/reference/formatIssues.md)
 
 ## License
 

@@ -7,10 +7,24 @@ If you use the [`assert.assert()`](./assert.md) method in your middleware, users
 
 Most examples import from `@muze-nl/assert`, which also assigns the API to `globalThis.assert` for compatibility. Use `@muze-nl/assert/core` if you want the same API from a tree-shakeable entry point with no global side effects.
 
+## Patterns
+
+Assert patterns are ordinary JavaScript values:
+
+- literal strings, numbers, and booleans use loose equality
+- regular expressions match strings, or every item when the data is an array
+- object literals describe object shapes
+- array literals require an array and apply their child pattern to every item
+- functions are custom validators
+- `String`, `Number`, `Boolean`, `Array`, and `Object` are built-in type patterns
+
+`String` requires a non-empty string. `Array` requires `Array.isArray(value)`. `Object` requires a non-null object that is not an array. Use [`instanceOf`](./instanceOf.md) when you need JavaScript constructor identity.
+
 ## API
 - [`allOf`](./allOf.md)
 - [`anyOf`](./anyOf.md)
 - [`assert`](./assert.md)
+- [`check`](./check.md)
 - [`disable`](./disable.md)
 - [`enable`](./enable.md)
 - [`error`](./error.md)

@@ -19,10 +19,17 @@ tap.test('core import has no global side effects', async t => {
 })
 
 tap.test('core exports work without global registration', async t => {
-	let { assert, disable, enable, fails, validURL } = await import('../src/assert-core.mjs')
+	let { assert, check, disable, enable, fails, validURL } = await import('../src/assert-core.mjs')
 
 	t.equal(fails('https://example.com/', validURL), false)
 	t.equal(assert('not a url', validURL), undefined)
+	t.throws(
+		() => check('not a url', validURL, 'url is required', TypeError),
+		{
+			name: 'TypeError',
+			message: /url is required/
+		}
+	)
 
 	let oldConsoleError = console.error
 	console.error = () => {}
@@ -33,6 +40,31 @@ tap.test('core exports work without global registration', async t => {
 		disable()
 		console.error = oldConsoleError
 	}
+
+	t.end()
+})
+
+tap.test('Array pattern checks for arrays like the other built-in types', async t => {
+	let { fails } = await import('../src/assert-core.mjs')
+
+	t.equal(fails([], Array), false)
+	t.match(fails('not an array', Array), [
+		{ message: 'data is not an array' }
+	])
+
+	t.end()
+})
+
+tap.test('Object pattern checks for non-array objects like the other built-in types', async t => {
+	let { fails } = await import('../src/assert-core.mjs')
+
+	t.equal(fails({}, Object), false)
+	t.match(fails(null, Object), [
+		{ message: 'data is not an object' }
+	])
+	t.match(fails([], Object), [
+		{ message: 'data is not an object' }
+	])
 
 	t.end()
 })

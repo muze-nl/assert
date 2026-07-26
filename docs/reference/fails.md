@@ -20,7 +20,9 @@ If data is an object, assertions must also be an object. For any property of dat
 - a function: the function is called with 3 parameters (`data`, `root`, `path`) and must return `false` for success, an [`error()`](./error.md) object, or an array of problems. `data` is the value being asserted on, `root` is the root object being asserted, and `path` is the dotted/bracket path from the root to the current value.
 - an object: each of the properties of this object must match with the child properties of the data
 - an array: the property must be an array, if you pass an array with a value, each element of the array is asserted against that value
-- Number, Boolean or String: the property must be a number, a boolean or a non-empty string, respectively
+- `Number`, `Boolean`, `String`, `Array`, or `Object`: the property must be a number, a boolean, a non-empty string, an array, or a non-null object that is not an array, respectively
+
+Custom assertion functions are still functions. If you need to assert that a value is an instance of a constructor, use [`instanceOf()`](./instanceOf.md).
 
 Here is an example:
 

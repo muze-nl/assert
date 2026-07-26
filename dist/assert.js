@@ -14,6 +14,7 @@
     allOf: () => allOf,
     anyOf: () => anyOf,
     assert: () => assert,
+    check: () => check,
     disable: () => disable,
     enable: () => enable,
     error: () => error,
@@ -84,6 +85,12 @@
     if (value === Boolean) {
       return "boolean";
     }
+    if (value === Array) {
+      return "array";
+    }
+    if (value === Object) {
+      return "object";
+    }
     return value.name || "function";
   }
   function clip(text, maxLength = 60) {
@@ -134,7 +141,7 @@
     return jsonSummary(value);
   }
   function describeExpected(value) {
-    if (value === String || value === Number || value === Boolean) {
+    if (value === String || value === Number || value === Boolean || value === Array || value === Object) {
       return describeFunction(value);
     }
     if (typeof value == "function") {
@@ -239,18 +246,27 @@
     }
     return result;
   }
+  function assertionError(source, problems, message = "Assertions failed", ErrorType = Error) {
+    let assertionIssues = problemsToIssues(problems);
+    let formattedIssues = formatIssues(assertionIssues);
+    return new ErrorType(message + ":\n" + formattedIssues.join("\n"), {
+      cause: { problems, issues: assertionIssues, source }
+    });
+  }
   function assert(source, test) {
     if (assertEnabled) {
       let problems = fails(source, test);
       if (problems) {
-        let assertionIssues = problemsToIssues(problems);
-        let formattedIssues = formatIssues(assertionIssues);
-        let message = "Assertions failed:\n" + formattedIssues.join("\n");
-        console.error("\u{1F170}\uFE0F  " + message);
-        throw new Error(message, {
-          cause: { problems, issues: assertionIssues, source }
-        });
+        let error2 = assertionError(source, problems);
+        console.error("\u{1F170}\uFE0F  " + error2.message);
+        throw error2;
       }
+    }
+  }
+  function check(source, test, message = "Assertions failed", ErrorType = Error) {
+    let problems = fails(source, test);
+    if (problems) {
+      throw assertionError(source, problems, message, ErrorType);
     }
   }
   function Optional(pattern) {
@@ -377,6 +393,14 @@
       }
       if (data == "") {
         problems.push(error("data is an empty string, which is not allowed", data, pattern, path));
+      }
+    } else if (pattern === Array) {
+      if (!Array.isArray(data)) {
+        problems.push(error("data is not an array", data, pattern, path));
+      }
+    } else if (pattern === Object) {
+      if (!data || typeof data != "object" || Array.isArray(data)) {
+        problems.push(error("data is not an object", data, pattern, path));
       }
     } else if (pattern instanceof RegExp) {
       if (Array.isArray(data)) {
