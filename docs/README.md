@@ -11,6 +11,7 @@ The current detailed API documentation lives in [reference](./reference/):
 - [Reference index](./reference/)
 - [Creating custom assertion checks](./reference/#creating-custom-assertion-checks)
 - [`assert()`](./reference/assert.md)
+- [`check()`](./reference/check.md)
 - [`fails()`](./reference/fails.md)
 - [`issues()`](./reference/issues.md)
 - [`formatIssues()`](./reference/formatIssues.md)

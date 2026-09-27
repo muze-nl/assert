@@ -72,17 +72,21 @@ assert(response, {
 })
 ```
 
-This checks with loose equality, so it is best used for simple literal expectations. Constructors check types:
+This checks with loose equality, so it is best used for simple literal expectations. The common constructors check types:
 
 ```javascript
 assert(user, {
 	id: String,
 	age: Number,
-	active: Boolean
+	active: Boolean,
+	roles: Array,
+	profile: Object
 })
 ```
 
-`String` means a non-empty string. An empty string fails, which is often what you want when checking identifiers, names, and URL-like fields. Regular expressions work too:
+`String` means a non-empty string. An empty string fails, which is often what you want when checking identifiers, names, and URL-like fields. `Array` means `Array.isArray(value)`. `Object` means a non-null object that is not an array. If you need JavaScript constructor identity instead, use `instanceOf(SomeClass)`.
+
+Regular expressions work too:
 
 ```javascript
 assert(user, {
@@ -90,7 +94,7 @@ assert(user, {
 })
 ```
 
-Objects describe object shapes:
+Object literals describe object shapes:
 
 ```javascript
 assert(config, {
@@ -101,7 +105,7 @@ assert(config, {
 })
 ```
 
-Arrays describe every item in an array:
+Array literals describe every item in an array:
 
 ```javascript
 assert(config, {
@@ -345,6 +349,6 @@ It is not magic, and that is the charm of it. The pattern is just a JavaScript o
 
 ## Where To Go Next
 
-The reference docs live in [reference](./reference/). Start with [`assert()`](./reference/assert.md), [`fails()`](./reference/fails.md), and [`issues()`](./reference/issues.md), then look at [`Optional()`](./reference/Optional.md), [`Required()`](./reference/Required.md), [`oneOf()`](./reference/oneOf.md), and [`allOf()`](./reference/allOf.md) when you want to compose larger checks.
+The reference docs live in [reference](./reference/). Start with [`assert()`](./reference/assert.md), [`check()`](./reference/check.md), [`fails()`](./reference/fails.md), and [`issues()`](./reference/issues.md), then look at [`Optional()`](./reference/Optional.md), [`Required()`](./reference/Required.md), [`oneOf()`](./reference/oneOf.md), and [`allOf()`](./reference/allOf.md) when you want to compose larger checks.
 
-The shortest version is this: use `assert()` for development-time contracts, `fails()` when you want raw compatibility problems, and `issues()` plus `formatIssues()` when you want clean reporting. Then add custom assertions where your project has rules of its own.
+The shortest version is this: use `assert()` for development-time contracts, `check()` for contracts that must always throw on failure, `fails()` when you want raw compatibility problems, and `issues()` plus `formatIssues()` when you want clean reporting. Then add custom assertions where your project has rules of its own.

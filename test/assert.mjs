@@ -1,6 +1,6 @@
 import { enable, disable, fails, issues, assert, error, warn,
 	oneOf, anyOf, allOf, not, Optional, Required, Recommended,
-	validURL, validEmail, instanceOf, formatIssue, formatIssues } from '../src/assert.mjs'
+	validURL, validEmail, instanceOf, check, formatIssue, formatIssues } from '../src/assert.mjs'
 import tap from 'tap'
 
 tap.test('start', t => {
@@ -46,6 +46,21 @@ tap.test('enable', t => {
 	})
 	console.error = oldConsoleError
 	disable()
+	t.end()
+})
+
+tap.test('check always throws with structured cause', t => {
+	t.throws(() => check({ foo: 1 }, { foo: String }, 'metadata is invalid', TypeError), {
+		name: 'TypeError',
+		message: "metadata is invalid:\n  - foo: data is not a string"
+	})
+
+	try {
+		check({ foo: 1 }, { foo: String }, 'metadata is invalid')
+	} catch (error) {
+		t.same(error.cause.issues[0].path, ['foo'])
+		t.equal(error.cause.issues[0].message, 'data is not a string')
+	}
 	t.end()
 })
 
@@ -373,6 +388,19 @@ let source = {
 	let result = fails(source, expect)
 	t.equal(result.length, 1)
 	t.end()	
+})
+
+tap.test('Object', t => {
+	let result = fails({
+		foo: {},
+		bar: { baz: true }
+	}, {
+		foo: Object,
+		bar: Object
+	})
+	t.equal(result, false)
+	t.equal(fails({ foo: [] }, { foo: Object }).length, 1)
+	t.end()
 })
 
 tap.test('array', t => {
@@ -773,6 +801,18 @@ tap.test('formatIssues covers built-in failure message formats', t => {
 			data: { foo: 'true' },
 			pattern: { foo: Boolean },
 			expected: ['  - foo: data is not a boolean']
+		},
+		{
+			name: 'array type',
+			data: { foo: {} },
+			pattern: { foo: Array },
+			expected: ['  - foo: data is not an array']
+		},
+		{
+			name: 'object type',
+			data: { foo: [] },
+			pattern: { foo: Object },
+			expected: ['  - foo: data is not an object']
 		},
 		{
 			name: 'regex mismatch',

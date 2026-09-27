@@ -16,4 +16,4 @@ This will call [`fails()`](./fails.md). If any assertion fails, it will throw an
   - bar: expected 'baz', found 'bax'
 ```
 
-If assert is disabled--the default state--no assertions will be checked. See [`fails()`](./fails.md) for a list of possible assertions and [`issues()`](./issues.md) for path-aware issue objects.
+If assert is disabled--the default state--no assertions will be checked. See [`check()`](./check.md) for the always-on throwing variant, [`fails()`](./fails.md) for a list of possible assertions, and [`issues()`](./issues.md) for path-aware issue objects.

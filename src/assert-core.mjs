@@ -75,6 +75,12 @@ function describeFunction(value) {
 	if (value === Boolean) {
 		return 'boolean'
 	}
+	if (value === Array) {
+		return 'array'
+	}
+	if (value === Object) {
+		return 'object'
+	}
 	return value.name || 'function'
 }
 
@@ -131,7 +137,7 @@ function formatValue(value) {
 }
 
 function describeExpected(value) {
-	if (value === String || value === Number || value === Boolean) {
+	if (value === String || value === Number || value === Boolean || value === Array || value === Object) {
 		return describeFunction(value)
 	}
 	if (typeof value == 'function') {
@@ -243,6 +249,14 @@ function problemsToIssues(problems) {
 	return result
 }
 
+function assertionError(source, problems, message='Assertions failed', ErrorType=Error) {
+	let assertionIssues = problemsToIssues(problems)
+	let formattedIssues = formatIssues(assertionIssues)
+	return new ErrorType(message+':\n'+formattedIssues.join('\n'), {
+		cause: { problems, issues: assertionIssues, source }
+	})
+}
+
 /**
  * This function will check the source for the assertions in test, if
  * assertion checking is enabled.
@@ -253,14 +267,21 @@ export function assert(source, test) {
 	if (assertEnabled) {
 		let problems = fails(source,test)
 		if (problems) {
-			let assertionIssues = problemsToIssues(problems)
-			let formattedIssues = formatIssues(assertionIssues)
-			let message = 'Assertions failed:\n'+formattedIssues.join('\n')
-			console.error('🅰️  '+message)
-			throw new Error(message, {
-				cause: { problems, issues: assertionIssues, source } 
-			})
+			let error = assertionError(source, problems)
+			console.error('🅰️  '+error.message)
+			throw error
 		}
+	}
+}
+
+/**
+ * Always checks the source for the assertions in test. If any assertion
+ * fails, it throws an error with normalized issues in its cause.
+ */
+export function check(source, test, message='Assertions failed', ErrorType=Error) {
+	let problems = fails(source,test)
+	if (problems) {
+		throw assertionError(source, problems, message, ErrorType)
 	}
 }
 
@@ -453,6 +474,14 @@ export function fails(data, pattern, root, path='') {
 		}
 		if (data == "") {
 			problems.push(error('data is an empty string, which is not allowed', data, pattern, path))
+		}
+	} else if (pattern === Array) {
+		if (!Array.isArray(data)) {
+			problems.push(error('data is not an array', data, pattern, path))
+		}
+	} else if (pattern === Object) {
+		if (!data || typeof data != 'object' || Array.isArray(data)) {
+			problems.push(error('data is not an object', data, pattern, path))
 		}
 	} else if (pattern instanceof RegExp) {
     	if (Array.isArray(data)) {
